@@ -164,5 +164,8 @@ cython_debug/
 .DS_Store/
 .DS_Store
 
-# config classes
+# Config
 qa_generation/openai_config.py
+
+# Corpus
+corpus/
