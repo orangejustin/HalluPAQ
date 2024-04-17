@@ -1,8 +1,11 @@
+import traceback
+from concurrent.futures import ThreadPoolExecutor
 from openai import OpenAI
 import json
 import time
 from openai_config import OpenAIConfig
 import os
+from tqdm import tqdm
 
 """
 The string formatting function _strip_str and the prompt used to interact 
@@ -167,18 +170,29 @@ class QAPairsGenerator:
 
         return qa_pairs
     
-    def generate_qa_pairs_from_chunks(self, chunks: list[str], output_file: str) -> None:
+    def generate_qa_pairs_from_chunks(self, chunks: list[str], output_file: str, n_worker: int = 128) -> None:
         """
         Generate QA pairs from the list of chunks of text.
         """
-        with open(output_file, 'w', encoding='utf-8') as f: 
-            for id, chunk in chunks:
-                # start_time = time.time()
+        executor = ThreadPoolExecutor(max_workers=n_worker)
 
-                qa_pairs = self.generate_qa_pairs(id, chunk)
-                
-                for qa_pair in qa_pairs:
-                    f.write(json.dumps(qa_pair) + "\n")
+        with open(output_file, 'w', encoding='utf-8') as f: 
+            for i in tqdm(range(0, len(chunks), n_worker)):
+                # start_time = time.time()
+                print(f"Processing batch {i // n_worker} out of {len(chunks) // n_worker}")
+                batch = chunks[i: i + n_worker]
+                def task(entry):
+                    id, chunk = entry
+                    try:
+                        qa_pairs = self.generate_qa_pairs(id, chunk)
+                    except Exception as e:  # just ignore error
+                        print(e)
+                    for qa_pair in qa_pairs:
+                        f.write(json.dumps(qa_pair) + "\n")
+
+                results = executor.map(task, batch)  # submit the job in a detached manner
+                for result in results:  # wait for the current batch to finish before next batch
+                    pass
 
                 # end_time = time.time()
                 # print("Time taken: ", end_time - start_time)
@@ -188,8 +202,8 @@ if __name__ == "__main__":
     qag.init_openai_client()
     
     # TODO: Change the corpus_dir and paq_dir to the appropriate directories
-    corpus_dir = "corpus/textbook/chunk/"
-    paq_dir = "PAQ/textbook/textbook_paq.jsonl"
+    corpus_dir = "corpus/statperls/chunk/Steven"
+    paq_dir = "PAQ/statperls/Steven_chunk_paq.jsonl"
 
     chunks = _prep_data(corpus_dir)
 
