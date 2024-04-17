@@ -3,6 +3,8 @@ import json
 import time
 from openai_config import OpenAIConfig
 import os
+from tqdm import tqdm
+import pandas as pd
 
 """
 The string formatting function _strip_str and the prompt used to interact 
@@ -74,6 +76,16 @@ def _prep_data(data_dir: str) -> list:
                     all_data.append((data["id"], data["contents"]))
 
     return all_data
+
+
+def _fetch_last_lines(file_path):
+    """
+    Helper function for fetching the last line of a file.
+    """
+    with open(file_path, 'r', encoding='utf-8') as file:
+        lines = file.readlines()
+        return lines[-1] if len(lines) > 0 else None
+
 
 class QAPairsGenerator:
     def __init__(self, num_qa: int = 3, q_model: str = "gpt-3.5-turbo", a_model: str = "gpt-4-turbo"):
@@ -171,8 +183,20 @@ class QAPairsGenerator:
         """
         Generate QA pairs from the list of chunks of text.
         """
-        with open(output_file, 'w', encoding='utf-8') as f: 
-            for id, chunk in chunks:
+        # create dir if not exists
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        l = _fetch_last_lines(output_file)
+        if l is not None:
+            l = json.loads(l)
+            current_id = l['id'][:-2]
+            df = pd.DataFrame(chunks, columns=['id', 'chunk'])
+            index = df[df['id'] == current_id].index[0]
+            # Update chunks
+            chunks = chunks[index+1:]
+
+        # Continue to modify the output file
+        with open(output_file, 'a', encoding='utf-8') as f:
+            for id, chunk in tqdm(chunks):
                 # start_time = time.time()
 
                 qa_pairs = self.generate_qa_pairs(id, chunk)
@@ -188,10 +212,8 @@ if __name__ == "__main__":
     qag.init_openai_client()
     
     # TODO: Change the corpus_dir and paq_dir to the appropriate directories
-    corpus_dir = "corpus/textbook/chunk/"
-    paq_dir = "PAQ/textbook/textbook_paq.jsonl"
+    corpus_dir = "corpus/statperls/chunk/Justin"
+    paq_dir = "PAQ/statperls/Justin_chunk_paq.jsonl"
 
     chunks = _prep_data(corpus_dir)
-
     qag.generate_qa_pairs_from_chunks(chunks, paq_dir)
-    
