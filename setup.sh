@@ -7,6 +7,9 @@ echo "Activating the environment"
 source "$(conda info --base)/etc/profile.d/conda.sh"
 conda activate anlp_hw4
 
+echo "Installing PyTorch nightly preview to use MPS"
+conda install pytorch-nightly::pytorch torchvision torchaudio -c pytorch-nightly
+
 echo "Upgrading pip"
 pip install --upgrade pip
 
