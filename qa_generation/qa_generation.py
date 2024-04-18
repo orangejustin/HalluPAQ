@@ -79,14 +79,33 @@ def _prep_data(data_dir: str) -> list:
     return all_data
 
 
-def _fetch_last_lines(file_path):
-    """
-    Helper function for fetching the last line of a file.
-    """
-    with open(file_path, 'r', encoding='utf-8') as file:
-        lines = file.readlines()
-        return lines[-1] if len(lines) > 0 else None
+def _safe_json_loads(s):
+    """Attempt to decode JSON from string 's'. Return None if an error occurs."""
+    try:
+        return json.loads(s)
+    except json.JSONDecodeError:
+        return None
 
+def _fetch_lastest_id(file_path):
+    """
+    Helper function for fetching the lastest line in a file.
+    """
+    with open(file_path, 'r') as file:
+        lines = file.readlines()
+        if not lines:
+            return None
+        # Remove empty or whitespace-only lines and attempt to parse JSON
+        lines = [line.strip() for line in lines if line.strip()]
+        json_data = [_safe_json_loads(line) for line in lines]
+        json_data = [item for item in json_data if item is not None]
+        df = pd.DataFrame(json_data)
+        df['id'] = df.apply(lambda x: x.get('id', 'No ID found'), axis=1)
+        df['extracted_id'] = df['id'].str.extract(r'article-(\d+)_').astype(int)
+        df = df[df['extracted_id'] == 26203]
+        df['section'] = df['id'].str.extract(r'article-26203_(\d+)_\d')
+        df['section'] = df['section'].astype(int)
+        max_section_ids = df[df['section'] == df['section'].max()]
+        return max_section_ids['id'].values[0][:-2]
 
 class QAPairsGenerator:
     def __init__(self, num_qa: int = 3, q_model: str = "gpt-3.5-turbo", a_model: str = "gpt-4-turbo"):
@@ -188,17 +207,15 @@ class QAPairsGenerator:
 
         # create dir if not exists
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
-        l = _fetch_last_lines(output_file)
-        if l is not None:
-            l = json.loads(l)
-            current_id = l['id'][:-2]
+        id = _fetch_lastest_id(output_file)
+        if id is not None:
             df = pd.DataFrame(chunks, columns=['id', 'chunk'])
-            index = df[df['id'] == current_id].index[0]
+            # get index of the last id
+            index = df.index[df['id'] == id].tolist()[0]
             # Update chunks
-            chunks = chunks[index+1:]
-
+            chunks = chunks[index:]
         # Continue to modify the output file
-        with open(output_file, 'w', encoding='utf-8') as f:
+        with open(output_file, 'a', encoding='utf-8') as f:
             for i in tqdm(range(0, len(chunks), n_worker)):
                 # start_time = time.time()
                 print(f"Processing batch {i // n_worker} out of {len(chunks) // n_worker}")
@@ -223,7 +240,7 @@ class QAPairsGenerator:
                 # print("Time taken: ", end_time - start_time)
 
 if __name__ == "__main__":
-    qag = QAPairsGenerator(num_qa=3, q_model="gpt-3.5-turbo", a_model="gpt-4-turbo")
+    qag = QAPairsGenerator(num_qa=2, q_model="gpt-3.5-turbo", a_model="gpt-4-turbo")
     qag.init_openai_client()
     
     # TODO: Change the corpus_dir and paq_dir to the appropriate directories
