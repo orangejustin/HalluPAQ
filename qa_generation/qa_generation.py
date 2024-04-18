@@ -101,8 +101,8 @@ def _fetch_lastest_id(file_path):
         df = pd.DataFrame(json_data)
         df['id'] = df.apply(lambda x: x.get('id', 'No ID found'), axis=1)
         df['extracted_id'] = df['id'].str.extract(r'article-(\d+)_').astype(int)
-        df = df[df['extracted_id'] == 26203]
-        df['section'] = df['id'].str.extract(r'article-26203_(\d+)_\d')
+        df = df[df['extracted_id'] == df['extracted_id'].max()]
+        df['section'] = df['id'].str.extract(r'article-\d{6}_(\d+)_\d')
         df['section'] = df['section'].astype(int)
         max_section_ids = df[df['section'] == df['section'].max()]
         return max_section_ids['id'].values[0][:-2]
