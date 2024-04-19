@@ -43,9 +43,6 @@ def main():
     parser.add_argument('output_path', type=str, help='Path to output JSONL file (test/validation covered subset)')
     args = parser.parse_args()
 
-    print(args.input_path)
-    print(args.output_path)
-
     # Run the paraphrasing function
     paraphrase_questions(args.input_path, args.output_path, OpenAIConfig.PROXY_API_KEY)
 
