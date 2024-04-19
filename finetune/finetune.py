@@ -58,12 +58,28 @@ def load_model_and_tokenizer(config):
     model = AutoModelForCausalLM.from_pretrained(
         config.model_name,
         quantization_config=bnb_config,
-        device_map=device_map  # Using device_map for model device allocation
+        device_map=device_map
     )
+    model.config.use_cache = False
+    model.config.pretraining_tp = 1
     tokenizer = AutoTokenizer.from_pretrained(config.model_name, trust_remote_code=True)
     tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "right"
     return model, tokenizer
 
+def formatting_prompts_func(data):
+    """
+    Helper function for formatting the prompts.
+    Modifiied to https://huggingface.co/docs/trl/en/sft_trainer
+    """
+    output_texts = []
+    instruction = ("You are a synthetic question-answer pair generator. Given a chunk of context about some topic(s), "
+                   "generate 1 example question a user could ask and would be answered using information from the "
+                   "chunk: ")
+    for i in range(len(data['question'])):
+        text = f"### Question: {instruction}{data['doc_chunk'][i]}\n ### Answer: Question: {data['question'][i]} Answer: {data['answer'][i]}"
+        output_texts.append(text)
+    return output_texts
 
 def prepare_training(model, tokenizer, config):
     training_arguments = TrainingArguments(
@@ -76,7 +92,7 @@ def prepare_training(model, tokenizer, config):
         learning_rate=config.training_args['learning_rate'],
         weight_decay=config.training_args['weight_decay'],
         fp16=False,
-        bf16=False,
+        bf16=True, # use for A100
         lr_scheduler_type=config.training_args['lr_scheduler_type'],
         max_steps=config.training_args['max_steps'],
         warmup_ratio=config.training_args['warmup_ratio'],
@@ -95,11 +111,11 @@ def prepare_training(model, tokenizer, config):
         model=model,
         train_dataset=dataset,
         peft_config=peft_config,
-        dataset_text_field="text",
         max_seq_length=config.sft_params['max_seq_length'],
         tokenizer=tokenizer,
         args=training_arguments,
-        packing=config.sft_params['packing']
+        packing=config.sft_params['packing'],
+        formatting_func=formatting_prompts_func,
     )
     return trainer
 
