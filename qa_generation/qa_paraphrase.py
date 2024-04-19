@@ -2,39 +2,55 @@ import jsonlines
 from openai_config import OpenAIConfig
 from openai import OpenAI
 import argparse
+from concurrent.futures import ThreadPoolExecutor
 
+_counter = 0
 
-def paraphrase_questions(input_file, output_file, api_key):
+def paraphrase_questions(input_file, output_file, api_key, n_thread: int = 10):
+    global _counter
+    _counter = 0
     client = OpenAI(api_key=api_key)
+    exec = ThreadPoolExecutor(max_workers=n_thread)
 
     # Open the input and output files
     with jsonlines.open(input_file) as reader, jsonlines.open(output_file, mode='w') as writer:
-        for entry in reader:
-            # Fetch the "question" field
-            original_question = entry.get('question')
-            if original_question:
-                try:
-                    # Request the OpenAI API to paraphrase the question
-                    response = client.chat.completions.create(
-                        model="gpt-3.5-turbo",
-                        messages=[
-                            {"role": "system", "content": "You are a helpful assistant who can paraphrase a sentence given to you. Please paraphrase this question such that it is different from the original."},
-                            {"role": "user", "content": original_question}
-                        ],
-                        max_tokens=100
-                    )
-                    paraphrased_question = response.choices[0].message.content.strip()
-                except Exception as e:
-                    print(f"Error processing question: {original_question}")
-                    print(e)
-                    paraphrased_question = original_question  # Use original if error occurs
-            else:
-                paraphrased_question = ""
+        results = []
 
-            # Update the entry with the paraphrased question
-            entry['question'] = paraphrased_question
-            entry['covered'] = True
-            writer.write(entry)
+        for entry in reader:
+
+            def task(jsonl_entry):
+                global _counter
+                original_question = jsonl_entry.get('question')
+                if original_question:
+                    try:
+                        # Request the OpenAI API to paraphrase the question
+                        response = client.chat.completions.create(
+                            model="gpt-3.5-turbo",
+                            messages=[
+                                {"role": "system", "content": "You are a helpful assistant who can paraphrase a sentence given to you. Please paraphrase this question such that it is different from the original."},
+                                {"role": "user", "content": original_question}
+                            ],
+                            max_tokens=100
+                        )
+                        paraphrased_question = response.choices[0].message.content.strip()
+                    except Exception as e:
+                        print(f"Error processing question: {original_question}")
+                        print(e)
+                        paraphrased_question = original_question  # Use original if error occurs
+                else:
+                    paraphrased_question = ""
+
+                # Update the entry with the paraphrased question
+                jsonl_entry['question'] = paraphrased_question
+                jsonl_entry['covered'] = True
+                writer.write(jsonl_entry)
+                print(f"Line {_counter} written to output file.")
+                _counter += 1
+
+            results.append(exec.submit(task, entry))
+
+        for res in results:
+            res.result()
 
 
 def main():
