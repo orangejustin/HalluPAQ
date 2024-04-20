@@ -17,7 +17,7 @@ class F1Calculator(object):
         return self.TP / (self.TP + (self.FP + self.FN) / 2)
 
 
-def make_ridge_plot(data1, data2, label1, label2, title):
+def make_ridge_plot(data1, data2, label1, label2, title, threshold: float):
     # Creating a DataFrame
     df1 = pd.DataFrame({'Value': data1, 'Group': label1})
     df2 = pd.DataFrame({'Value': data2, 'Group': label2})
@@ -52,7 +52,8 @@ def make_ridge_plot(data1, data2, label1, label2, title):
     plt.xlabel("Confidence score (lower score signifies higher confidence)")
     plt.xticks([2.5 * i for i in range(0, 11)])
     plt.ylabel("Density")
-    plt.vlines(10, 0, 0.3, color="red", linestyles="dashed")
+    plt.vlines(threshold, 0, 0.3, color="red", linestyles="dashed", label="Optimized threshold")
+    # plt.legend(loc="upper right")
     plt.show()
 
 
@@ -77,7 +78,7 @@ if __name__ == "__main__":
     print("Mean/STD for covered group: ", mean(covered_scores), stdev(covered_scores))
     print("Mean/STD for uncovered group: ", mean(uncovered_scores), stdev(uncovered_scores))
 
-    ###### optimize confidence threshold based on F1 ######
+    # ------ optimize confidence threshold based on F1 ------
     sorted_scores = sorted([(score, True) for score in covered_scores] + [(score, False) for score in uncovered_scores],
                            key=lambda x: x[0])
 
@@ -98,4 +99,4 @@ if __name__ == "__main__":
     print(f"Optimized threshold: {best_threshold}; achieved F1: {best_f1}")
 
     make_ridge_plot(covered_scores, uncovered_scores, "Covered group", "Uncovered group",
-                    "Score distributions of covered and uncovered questions")
+                    "Score distributions of covered and uncovered questions", best_threshold)
