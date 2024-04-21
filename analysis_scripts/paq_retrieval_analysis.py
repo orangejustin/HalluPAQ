@@ -5,6 +5,8 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 
+FONTSIZE = 15
+
 
 class F1Calculator(object):
     def __init__(self, n_positive_samples, n_negative_samples):
@@ -36,7 +38,7 @@ def make_ridge_plot(data1, data2, label1, label2, title, threshold: float):
     def label(x, color, label):
         ax = plt.gca()
         ax.text(0, .2, label, fontweight="bold", color=color,
-                ha="left", va="center", transform=ax.transAxes)
+                ha="left", va="center", transform=ax.transAxes, fontsize=FONTSIZE)
 
     g.map(label, "Value")
 
@@ -49,10 +51,11 @@ def make_ridge_plot(data1, data2, label1, label2, title, threshold: float):
     g.despine(bottom=True, left=True)
 
     plt.title(title)
-    plt.xlabel("Confidence score (lower score signifies higher confidence)")
-    plt.xticks([2.5 * i for i in range(0, 11)])
-    plt.ylabel("Density")
-    plt.vlines(threshold, 0, 0.3, color="red", linestyles="dashed", label="Optimized threshold")
+    plt.xlim(10)
+    plt.xlabel("Confidence score\n(lower score signifies higher confidence)", fontsize=FONTSIZE)
+    plt.xticks([4 * i for i in range(0, 6)], fontsize=FONTSIZE)
+    plt.ylabel("Density", fontsize=FONTSIZE)
+    plt.vlines(threshold, 0, 0.4, color="red", linestyles="dashed", label="Optimized threshold")
     # plt.legend(loc="upper right")
     plt.show()
 
@@ -98,5 +101,4 @@ if __name__ == "__main__":
 
     print(f"Optimized threshold: {best_threshold}; achieved F1: {best_f1}")
 
-    make_ridge_plot(covered_scores, uncovered_scores, "Covered group", "Uncovered group",
-                    "Score distributions of covered and uncovered questions", best_threshold)
+    make_ridge_plot(covered_scores, uncovered_scores, "Covered", "Uncovered","", best_threshold)
