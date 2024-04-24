@@ -1,0 +1,32 @@
+[
+    {
+        "generation": "The spleen plays a critical role in regulating core body temperature by releasing a hormone called thermulin, which adjusts blood flow and metabolic rate to maintain temperature balance within the body.",
+        "decision": [
+            {
+                "fact": "The spleen plays a critical role in regulating core body temperature.",
+                "is_supported": false,
+                "output": "False"
+            },
+            {
+                "fact": "It releases a hormone called thermulin.",
+                "is_supported": false,
+                "output": "False"
+            },
+            {
+                "fact": "Thermulin adjusts blood flow.",
+                "is_supported": false,
+                "output": "False"
+            },
+            {
+                "fact": "Thermulin also adjusts metabolic rate.",
+                "is_supported": false,
+                "output": "False"
+            },
+            {
+                "fact": "The adjustments maintain temperature balance within the body.",
+                "is_supported": false,
+                "output": "False"
+            }
+        ]
+    }
+]
