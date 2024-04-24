@@ -4,13 +4,13 @@ import os
 import nltk
 from nltk.tokenize import sent_tokenize
 nltk.download('punkt')
-from huggingface_config import HuggingFaceConfig
+from api_config import HuggingFaceConfig
 
 class SelfChatGPT:
     """
     A class to evaluate the quality of generated samples using the SelfCheckGPT.
     A higher score indicates higher chance of being hallucination.
-    Resources: https://github.com/potsawee/selfcheckgpt
+    SelfCheckGPT repository: https://github.com/potsawee/selfcheckgpt
     """
     def __init__(self, generations: str, samples: list):
         self.sentences = sent_tokenize(generations)
