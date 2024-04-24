@@ -27,7 +27,7 @@ class SelfChatGPT:
             selfcheck = SelfCheckNLI(device=self.device)
             scores = selfcheck.predict(
             sentences = self.sentences,                       
-            sampled_passages = samples
+            sampled_passages = self.samples
             )
 
         elif option == "LLM":
@@ -35,7 +35,7 @@ class SelfChatGPT:
             selfcheck = SelfCheckLLMPrompt(llm_model, self.device)
             scores = selfcheck.predict(
             sentences = self.sentences,                       
-            sampled_passages = samples,
+            sampled_passages = self.samples,
             verbose=True
             )
         
