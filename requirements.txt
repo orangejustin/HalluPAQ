@@ -13,5 +13,7 @@ datasets==2.19.0
 selfcheckgpt==0.1.7
 torch==2.2.2
 tqdm==4.66.2
+nltk==3.8.1
+numpy==1.26.4
 sagemaker==2.208.0
 rank_bm25==0.2.2

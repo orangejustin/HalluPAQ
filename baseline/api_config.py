@@ -6,3 +6,6 @@ Use `git update-index --assume-unchanged config/huggingface_config.py` to ignore
 
 class HuggingFaceConfig:
     HF_TOKEN = "todo"
+
+class OpenAIConfig:
+    OpenAI_API_KEY = "todo"
