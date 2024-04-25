@@ -4,7 +4,7 @@ import os
 import nltk
 from nltk.tokenize import sent_tokenize
 nltk.download('punkt')
-from api_config import HuggingFaceConfig
+from .api_config import HuggingFaceConfig
 
 class SelfCheckGPT:
     """
