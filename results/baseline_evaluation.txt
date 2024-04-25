@@ -1,0 +1,12 @@
+SelfCheckGPT-NLI:
+ROC-AUC score: 0.7164398994971879
+Average response time: 8.40975884630843
+
+SelfCheckGPT-LLM:
+ROC-AUC score: 0.6363687845180366
+Average response time: 13.066331343801897
+
+FactScore:
+ROC-AUC score: 0.7648430910277695
+Average response time: 5.908914005921816
+
