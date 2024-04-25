@@ -10,10 +10,10 @@ fact_scorer_demons_path = data_path / "fact_scorer_demons.json"
 # OpenAI API
 max_tokens = 1024
 temp = 0.7
-model_name = "gpt-4-turbo-preview"
+model_name = "gpt-3.5-turbo"
 
 # Database path
 # Current folder
-current_folder = Path(__file__).parent
-facts_db_path = current_folder / "database/facts.json"
-decisions_db_path = current_folder / "database/decisions.json"
+# current_folder = Path(__file__).parent
+# facts_db_path = current_folder / "database/facts.json"
+# decisions_db_path = current_folder / "database/decisions.json"

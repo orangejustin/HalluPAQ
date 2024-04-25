@@ -4,21 +4,25 @@ from .state_handler import StateHandler
 from . import configs
 from tqdm import tqdm
 import os
+from pathlib import Path
 
 class FactScore:
-
-    def __init__(self, gamma: int = 10):
+    def __init__(self, gamma: int = 10, db_id: str = ""):
         self.atomic_fact_generator = AtomicFactGenerator()
         self.fact_scorer = FactScorer()
         self.gamma = gamma
 
+        current_folder = Path(__file__).parent
+        facts_db_path = current_folder / f"database/facts_{db_id}.json"
+        decisions_db_path = current_folder / f"database/decisions_{db_id}.json"
+
         # Delete old db files if exist
-        for db_path in [configs.facts_db_path, configs.decisions_db_path]:
+        for db_path in [facts_db_path, decisions_db_path]:
             if os.path.isfile(db_path):
                 os.remove(db_path)
 
-        self.facts_handler = StateHandler(configs.facts_db_path)
-        self.decisions_handler = StateHandler(configs.decisions_db_path)
+        self.facts_handler = StateHandler(facts_db_path)
+        self.decisions_handler = StateHandler(decisions_db_path)
 
     def get_facts(self, generations: list) -> list:
         """
@@ -71,13 +75,16 @@ class FactScore:
         score = np.mean([d["is_supported"] for d in decision])
         init_score = score
 
-        if self.gamma:
-            penalty = (
-                1.0
-                if len(decision) >= self.gamma
-                else np.exp(1 - self.gamma / len(decision))
-            )
-            score = penalty * score
+        if len(decision) == 0:
+            return 0.0, 0.0   
+        else:
+            if self.gamma:
+                penalty = (
+                    1.0
+                    if len(decision) >= self.gamma
+                    else np.exp(1 - self.gamma / len(decision))
+                )
+                score = penalty * score
 
         return score, init_score
 
@@ -167,3 +174,10 @@ class FactScore:
         scores, init_scores = self.get_decisions(facts, knowledge_sources)
 
         return np.mean(scores), np.mean(init_scores)
+    
+    def delete_db(self):
+        """
+        Deletes the database files.
+        """
+        self.facts_handler.delete()
+        self.decisions_handler.delete()
