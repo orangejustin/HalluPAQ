@@ -26,7 +26,7 @@ def _send_covered_request(entry):
     ground_truth = response.choices[0].message.content.strip().lower().replace(".", "")
 
     if ground_truth == "true" or ground_truth == "false":
-        entry["ground_truth"] = True if ground_truth == "true" else False
+        entry["ground_truth"] = True if ground_truth == "false" else False
         return entry
     else:
         print(f"GPT provided invalid answer ({ground_truth}) to entry ID {entry_id} (split: covered). Writing to error output file.")
