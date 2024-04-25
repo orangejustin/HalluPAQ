@@ -1,7 +1,9 @@
 import importlib.resources
 from pathlib import Path
+import pathlib
 # Path to the data file within the package
-data_path = importlib.resources.files("FactScoreLite") / "data"
+# data_path = importlib.resources.files("FactScoreLite") / "data"
+data_path = pathlib.Path(__file__).parent / "data"
 
 # Path to the data file within the package
 atomic_facts_demons_path = data_path / "atomic_facts_demons.json"

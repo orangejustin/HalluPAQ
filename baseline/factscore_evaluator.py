@@ -1,6 +1,6 @@
-from FactScoreLite.factscore import FactScore
+from .FactScoreLite.factscore import FactScore
 import os
-from api_config import OpenAIConfig
+from .api_config import OpenAIConfig
 
 class FactScoreEvaluator:
     """
@@ -11,7 +11,7 @@ class FactScoreEvaluator:
     """
     def __init__(self, gamma:int = 10, db_id:str = ""):
         os.environ['OPENAI_API_KEY'] = OpenAIConfig.OpenAI_API_KEY
-        self.fact_score = FactScore(gamma, db_id)
+        self.fact_score = FactScore(gamma = gamma, db_id = db_id)
 
     def get_batch_fact_score(self, generations:list[str], knowledge_sources:list[str]) -> tuple[list[float], list[float]]:
         scores, init_scores = self.fact_score.get_factscore(generations, knowledge_sources)
