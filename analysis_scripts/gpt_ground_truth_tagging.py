@@ -57,12 +57,13 @@ def _send_pubmed_request(entry):
 
     if tag == "match" or tag == "not match" or tag == "do not know":
         entry["tag"] = tag
-        entry["ground_truth"] = True if tag == "not match" else False
+        entry["ground_truth"] = False if tag == "match" else True
         return entry
     else:
         print(f"GPT provided invalid answer ({tag}) to entry ID {entry_id} (split: pubmed). Writing to error output file.")
         with jsonlines.open(_ERROR_FILE, "a") as writer:
             writer.write(entry)
+
 
 def _send_surreal_request(entry):
     """
@@ -75,22 +76,28 @@ def _send_surreal_request(entry):
     response = client.chat.completions.create(
         model="gpt-4-turbo",
         messages=[
-            {"role": "system", "content": "You are a helpful assistant classifying ANSWER to a QUESTION that is based "
-                                          "on wrong assumptions. Please say 'respond' if ANSWER responds to the wrong "
-                                          "assumption, 'doubt' if ANSWER doubts the assumption of the QUESTION,  "
-                                          "or 'do not know' if the ANSWER admits absence of knowledge."},
+            {"role": "system", "content": "Given a QUESTION that involves a non-existent concept or unrelated "
+                                          "entities, classify the following ANSWER based on its reaction to the "
+                                          "question. The classification categories are:\n\n"
+                                          "1. The ANSWER is being tricked by the question: This category should be "
+                                          "chosen if the answer treats the nonsensical or flawed concept as valid and "
+                                          "attempts to provide a serious explanation or context.\n\n"
+                                          "2. ANSWER spots a problem in the question: This category should be chosen "
+                                          "if the answer identifies that the question is based on a non-existent "
+                                          "concept or incorrect assumptions, and clarifies why the question is flawed "
+                                          "or makes no sense.\n\nPlease just respond 1 or 2"},
             {"role": "user", "content": f"QUESTION: {question}\n\nANSWER: {generated_answer}"}
         ],
         max_tokens=10
     )
-    tag = response.choices[0].message.content.strip().lower().replace(".", "")
+    tag = response.choices[0].message.content.strip().lower().replace(".", "").replace("(", "").replace(")", "")
 
-    if tag == "respond" or tag == "doubt" or tag == "do not know":
-        entry["tag"] = tag
-        entry["ground_truth"] = True if tag == "respond" else False
+    if tag == "1" or tag == "2":
+        entry["tag"] = "tricked" if tag == "1" else "not trickek"
+        entry["ground_truth"] = True if tag == "1" else False
         return entry
     else:
-        print(f"GPT provided invalid answer ({tag}) to entry ID {entry_id} (split: pubmed). Writing to error output file.")
+        print(f"GPT provided invalid answer ({tag}) to entry ID {entry_id} (split: surreal). Writing to error output file.")
         with jsonlines.open(_ERROR_FILE, "a") as writer:
             writer.write(entry)
 
