@@ -1,5 +1,5 @@
 import json
-
+import os
 
 class StateHandler:
     def __init__(self, path):
@@ -18,3 +18,9 @@ class StateHandler:
 
         except FileNotFoundError:
             return []
+        
+    def delete(self):
+        try:
+            os.remove(self.db_path)
+        except FileNotFoundError:
+            pass

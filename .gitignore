@@ -169,3 +169,6 @@ qa_generation/openai_config.py
 
 # Corpus
 corpus/
+
+# FactScoreLite DB
+baseline/FactScoreLite/database/
