@@ -1,0 +1,45 @@
+SelfCheckGPT-NLI:
+ROC-AUC score: 0.7164398994971879
+Average response time: 8.40975884630843
+
+SelfCheckGPT-LLM:
+ROC-AUC score: 0.6363687845180366
+Average response time: 13.066331343801897
+
+FactScore:
+ROC-AUC score: 0.7648430910277695
+Average response time: 5.908914005921816
+
+**HalluPAQ**:
+ROC-AUC score: 0.7695151901714689
+Average response time: 0.00444 (embed) + 0.00011 (HNSW search) = 0.00455
+
+Here is classification report dump of HalluPAQ on test set:
+
+Confusion Matrix:
+[[ 923  447]
+ [ 496 1953]]
+
+Classification Report:
+              precision    recall  f1-score   support
+
+       False       0.65      0.67      0.66      1370
+        True       0.81      0.80      0.81      2449
+
+    accuracy                           0.75      3819
+   macro avg       0.73      0.74      0.73      3819
+weighted avg       0.76      0.75      0.75      3819
+
+
+ROC:
+0.7695151901714689
+
+Number of FN: 496
+Sampled FN ids: ['Anatomy_Gray_2182_2', 'article-26572_47_1', 'article-24369_43_1', 'Anatomy_Gray_2830_1', 'pubmed23n0400_1116_2']
+Mean for FN_scores 7.378560131595981
+STD for FN_scores 1.445866976262942
+
+Number of FP: 447
+Sampled FP ids: [696, 'pubmed23n0400_642_0', 925, 'pubmed23n0400_648_2', 'pubmed23n0400_731_1']
+Mean for FP_scores 13.354745756059685
+STD for FP_scores 2.029355236194021
