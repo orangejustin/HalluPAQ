@@ -1,10 +1,11 @@
 from selfcheckgpt.modeling_selfcheck import SelfCheckNLI, SelfCheckLLMPrompt
+from selfcheckgpt.modeling_selfcheck_apiprompt import SelfCheckAPIPrompt
 import torch
 import os
 import nltk
 from nltk.tokenize import sent_tokenize
 nltk.download('punkt')
-from .api_config import HuggingFaceConfig
+from .api_config import HuggingFaceConfig, OpenAIConfig
 
 class SelfCheckGPT:
     """
@@ -15,6 +16,7 @@ class SelfCheckGPT:
     def __init__(self):
         self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         os.environ['HF_TOKEN'] = HuggingFaceConfig.HF_TOKEN
+        os.environ['OPENAI_API_KEY'] = OpenAIConfig.OpenAI_API_KEY
     
     def evaluate(self,  generations: str, samples: list, option = "LLM"):
         """
@@ -32,8 +34,9 @@ class SelfCheckGPT:
             )
 
         elif option == "LLM":
-            llm_model = "mistralai/Mistral-7B-Instruct-v0.2"
-            selfcheck = SelfCheckLLMPrompt(llm_model, self.device)
+            selfcheck = SelfCheckAPIPrompt(client_type="openai", model="gpt-3.5-turbo")
+            # llm_model = "mistralai/Mistral-7B-Instruct-v0.2"
+            # selfcheck = SelfCheckLLMPrompt(llm_model, self.device)
             scores = selfcheck.predict(
             sentences = sentences,                       
             sampled_passages = samples,
@@ -61,9 +64,9 @@ if __name__ == "__main__":
     
     # Evaluate the model on the generated samples
     scores_LLM, avg_score_LLM,  = selfcheckgpt.evaluate(generation, samples, option="LLM")
-    scores_ntl, avg_score_ntl = selfcheckgpt.evaluate(generation, samples, option="NLI")
+    # scores_ntl, avg_score_ntl = selfcheckgpt.evaluate(generation, samples, option="NLI")
     
     print("Scores for LLM model:", scores_LLM)
     print("Average score for LLM model:", avg_score_LLM)
-    print("Scores for NLI model:", scores_ntl)
-    print("Average score for NLI model:", avg_score_ntl)
+    # print("Scores for NLI model:", scores_ntl)
+    # print("Average score for NLI model:", avg_score_ntl)

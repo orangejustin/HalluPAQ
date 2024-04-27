@@ -63,7 +63,7 @@ def calculate_roc_auc_from_file(true_file, pred_file, baseline="factscore"):
 if __name__ == "__main__":
     time_file = "PAQ/test_output.jsonl"
     true_file = "PAQ/test_ground_truth.jsonl"
-    output_result_path = "results/baseline_evaluation.txt"
+    output_result_path = "results/baseline_evaluation_new.txt"
     sample_response_time = _preprocess_selfcheck_sample_time(time_file)
     
     with open(output_result_path, "w") as file:
@@ -83,6 +83,15 @@ if __name__ == "__main__":
         avg_time_selfcheckgpt_llm = sum(time_selfcheckgpt_llm) / len(time_selfcheckgpt_llm)
         print(f"ROC-AUC score: {roc__selfcheckgpt_llm}", file=file)
         print(f"Average response time: {avg_time_selfcheckgpt_llm}\n", file=file)
+
+        print("SelfCheckGPT-LLM-GPT:", file=file)
+        pred_file = "results/selfcheckgpt_result_llm_gpt.jsonl"
+        roc__selfcheckgpt_llm_gpt, time_selfcheckgpt_llm_gpt = calculate_roc_auc_from_file(true_file, pred_file, baseline = "selfcheckgpt")
+        time_selfcheckgpt_llm_gpt = [x + y for x, y in zip(sample_response_time, time_selfcheckgpt_llm_gpt)]
+        avg_time_selfcheckgpt_llm_gpt = sum(time_selfcheckgpt_llm_gpt) / len(time_selfcheckgpt_llm_gpt)
+        print(f"ROC-AUC score: {roc__selfcheckgpt_llm_gpt}", file=file)
+        print(f"Average response time: {avg_time_selfcheckgpt_llm_gpt}\n", file=file)
+        
 
         print("FactScore:", file=file)
         pred_file = "results/fact_score_result_test.jsonl"
