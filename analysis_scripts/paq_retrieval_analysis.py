@@ -48,10 +48,12 @@ def make_ridge_plot(data_covered, data_uncovered, data_pubmed, data_surreal, thr
     plt.fill_between(xs, density(xs), color='grey', alpha=0.8)
 
     plt.vlines(threshold, 0, 0.25, color='red', linestyle='--', label='threshold')
-    plt.legend()
-    plt.xlabel("Confidence score")
-    plt.ylabel("Density")
-    plt.title("Confidence score distribution across groups/splits")
+    plt.legend(fontsize=16)
+    plt.xlabel("Confidence score", fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.ylabel("Density", fontsize=16)
+    plt.yticks(fontsize=14)
+    plt.title("Confidence score distribution across groups/splits", fontsize=18)
     plt.show()
 
 if __name__ == "__main__":
