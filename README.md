@@ -1,5 +1,5 @@
-# GQA-FLEX
-Leveraging Generated Q&amp;A Pairs for Efficient Fine-Tuning and Cost-Effective Inference
+# HalluPAQ
+Efficient Confidence Scoring for Hallucination Detection in Domain-Specific LLMs
 
 ## Generate Group Q&A Pairs
 To generate group Q&A pairs, change the input corpus and output jsonl direction name and run the following command:

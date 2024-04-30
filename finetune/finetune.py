@@ -8,7 +8,19 @@ from trl import SFTTrainer
 import warnings
 warnings.filterwarnings("ignore")
 
-
+"""
+This script fine-tunes a model on a dataset using the SFTTrainer class from the TRL library.
+Refer to https://mlabonne.github.io/blog/posts/Fine_Tune_Your_Own_Llama_2_Model_in_a_Colab_Notebook.html
+Steps:
+1. Create your dataset in a CSV file with columns 'doc_chunk', 'question', and 'answer'.
+2. Run the script with the following arguments you need to change the arguments to your own dataset and model:
+    !python3 finetune.py \
+            --model_name "NousResearch/llama-2-7b-chat-hf" \
+            --dataset_file "train_data/data.csv" \
+            --new_model "llama-2-7b-qa-generator" \
+            --output_dir "./results_qa" \
+            --num_epochs 3
+"""
 def parse_arguments():
     parser = argparse.ArgumentParser(description="Fine-tune a model with specified parameters")
     parser.add_argument('--model_name', type=str, required=True, help='Model identifier on the HuggingFace Hub')
