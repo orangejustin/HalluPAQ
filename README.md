@@ -10,6 +10,7 @@
 - [Installation](#installation)
 - [Usage](#usage)
 - [Methodology](#methodology)
+- [Data](#data)
 - [Results](#results)
 
 ## Introduction
