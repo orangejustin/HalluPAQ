@@ -58,7 +58,7 @@ import HalluPAQ
 
 ## Data
 
-**Training Set**: Ground truth texts from StatPearls and Anatomy Gray, processed by OpenAI models to generate questions and answers.
+**Training Set**: Ground truth texts from [StatPearls and Anatomy Gray](https://huggingface.co/MedRAG), processed by OpenAI models to generate questions and answers.
 
 **Validation Set & Test Set**:
 - **Paraphrased Questions**: From the training set for adaptability testing.
