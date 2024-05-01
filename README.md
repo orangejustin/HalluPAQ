@@ -64,10 +64,23 @@ python3 qa_generation/qa_generation.py
 ```
 We obtain the generated Q&A pairs in the `knowledge_souce` directory.
 
-```python
-import HalluPAQ
-
+2. Running HalluPAQ Analysis for Hallucination Detection
+   1. Run simulation with a RAG system processes to evaluate and tag the generated Q&A pairs.
+   2. Determine if any of the responses are hallucinations based on the confidence scores.
+```bash
+cd HalluPAQ
+python3 analysis_scripts/simulated_rag.py \
+        --input_jsonl knowledge_source/knowledge_source.jsonl \
+        --output_jsonl path/to/output.jsonl --arn_role your_sagemaker_role_arn \
+        --shut_down
 ```
+
+- `--input_jsonl`: Specifies the path to the JSONL file containing the generated Q&A pairs.
+- `--output_jsonl`: Defines the path where the output, including the tags for hallucination detection, will be stored.
+- `--arn_role`: The AWS SageMaker role ARN that is required for accessing SageMaker resources during the analysis.
+- `--shut_down`: An optional flag to shut down the SageMaker instance after processing to manage resources efficiently.
+
+This process will analyze each Q&A pair, comparing the generated answer to the content derived from a knowledge base to check for discrepancies that may indicate hallucinations. The results will be saved in the specified output JSONL file, tagged with confidence scores indicating the likelihood of each response being a hallucination.
 
 ## Methodology
 
